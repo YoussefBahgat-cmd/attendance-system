@@ -154,6 +154,14 @@ section h2 {
     gap: 8px;
 }
 
+#qrReader {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto 16px;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+}
+
 .input-group input {
     flex: 1;
     padding: 12px 16px;

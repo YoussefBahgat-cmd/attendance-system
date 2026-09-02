@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام تسجيل الحضور - QR Code</title>
+    <title>تسجيل حضور الطلاب</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>📋 نظام تسجيل الحضور</h1>
-            <p class="subtitle">امسح QR Code لتسجيل حضور الطالب</p>
+            <h1>تسجيل حضور الطلاب</h1>
         </header>
 
         <main class="main-content">
             <section class="scanner-section">
+                <div id="qrReader"></div>
                 <div class="input-group">
-                    <input type="text" id="studentIdInput" class="student-input" placeholder="امسح QR Code هنا أو أدخل رقم الطالب..." autofocus>
-                    <button id="scanBtn" class="btn btn-primary">🔍 بحث</button>
+                    <input type="text" id="studentIdInput" class="student-input" placeholder="أدخل رقم الطالب يدويًا">
+                    <button id="scanBtn" class="btn btn-primary">بحث</button>
                 </div>
                 
                 <div id="studentInfo" class="student-info hidden">
@@ -29,18 +30,8 @@
                             <p id="studentGroup">المجموعة: -</p>
                             <div class="payment-info" id="paymentInfo">
                                 <div class="payment-status" id="paymentStatus">
-                                    <span class="payment-label">حالة دفع <span id="currentMonthLabel">شهر 9</span>:</span>
+                                    <span class="payment-label">حالة الدفع لشهر <span id="currentMonthLabel"></span>:</span>
                                     <span class="payment-value" id="paymentStatusText">-</span>
-                                </div>
-                                <div class="payment-amounts">
-                                    <div class="amount-item">
-                                        <span class="amount-label">المبلغ المدفوع:</span>
-                                        <span class="amount-value" id="paidAmount">-</span>
-                                    </div>
-                                    <div class="amount-item">
-                                        <span class="amount-label">المبلغ المتبقي:</span>
-                                        <span class="amount-value remaining" id="remainingAmount">-</span>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -61,87 +52,11 @@
                 </div>
             </section>
 
-            <section class="stats-section">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
-                        <div class="stat-value" id="totalToday">0</div>
-                        <div class="stat-label">حاضر اليوم</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🕐</div>
-                        <div class="stat-value" id="lastTime">-</div>
-                        <div class="stat-label">آخر تسجيل</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📊</div>
-                        <div class="stat-value" id="totalStudents">0</div>
-                        <div class="stat-label">إجمالي الطلاب</div>
-                    </div>
-                </div>
-            </section>
-
-            <section class="students-section">
-                <div class="section-header">
-                    <h2>👥 الطلاب وحالة الدفع - <span id="studentsMonthLabel">الشهر الحالي</span></h2>
-                </div>
-                <div class="table-container">
-                    <table id="studentsTable">
-                        <thead>
-                            <tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>المجموعة</th><th>حالة الدفع</th><th>المدفوع</th><th>المتبقي</th></tr>
-                        </thead>
-                        <tbody id="studentsBody"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section class="attendance-list-section">
-                <div class="section-header">
-                    <h2>📋 سجل الحضور اليوم</h2>
-                    <div class="header-buttons">
-                        <button id="clearAttendanceBtn" class="btn btn-danger">🗑️ مسح السجل</button>
-                        <button id="unpaidBtn" class="btn btn-warning">💰 غير المدفوعين</button>
-                        <button id="exportBtn" class="btn btn-outline">📥 تصدير Excel</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table id="attendanceTable">
-                        <thead>
-                            <tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>المجموعة</th><th>حالة الدفع</th><th>وقت التسجيل</th></tr>
-                        </thead>
-                        <tbody id="attendanceBody"></tbody>
-                    </table>
-                </div>
-                <div id="noRecords" class="no-records"><p>لا توجد سجلات حضور اليوم</p></div>
-            </section>
         </main>
 
         <footer class="footer">
             <p>© 2026 نظام تسجيل الحضور - جميع الحقوق محفوظة</p>
         </footer>
-    </div>
-
-    <div id="unpaidModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>💰 الطلاب غير المدفوعين - <span id="modalMonthLabel">شهر 9</span></h2>
-                <button id="closeModal" class="btn btn-outline">✕</button>
-            </div>
-            <div class="table-container">
-                <table id="unpaidTable">
-                    <thead>
-                        <tr><th>#</th><th>رقم الطالب</th><th>اسم الطالب</th><th>المجموعة</th><th>حالة الدفع</th><th>المبلغ المدفوع</th><th>المبلغ المتبقي</th></tr>
-                    </thead>
-                    <tbody id="unpaidBody"></tbody>
-                </table>
-            </div>
-            <div id="noUnpaid" class="no-records"><p>🎉 جميع الطلاب دافعين! لا يوجد طلاب غير مدفوعين لهذا الشهر</p></div>
-        </div>
-    </div>
-
-    <div id="toast" class="toast">
-        <span class="toast-icon">✅</span>
-        <span id="toastMessage">تم تسجيل الحضور بنجاح</span>
     </div>
 
     <script src="script.js"></script>
