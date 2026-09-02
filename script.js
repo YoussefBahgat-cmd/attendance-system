@@ -1,4 +1,4 @@
-const SCRIPT_URL = 'YOUR_SCRIPT_URL_HERE';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMKQ-N-w4BUqAWE4lNP6TrgUtTCbhatFkkEfdnYKs5ALBVpaWBaVYOK-AaI7jk-3LKSg/exec';
 let currentStudent = null;
 let actionInProgress = false;
 
