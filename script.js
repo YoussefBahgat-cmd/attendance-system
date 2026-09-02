@@ -44,8 +44,6 @@ function startScanner() {
 function searchStudent() {
     const value = studentIdInput.value.trim();
     if (!value) return showError('امسح QR Code أو أدخل رقم الطالب');
-    if (SCRIPT_URL === 'YOUR_SCRIPT_URL_HERE') return showError('ضع رابط Google Apps Script أولاً');
-
     fetch(`${SCRIPT_URL}?action=getStudent&studentId=${encodeURIComponent(value)}`)
         .then(response => response.json())
         .then(data => {
