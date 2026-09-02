@@ -16,12 +16,14 @@ const paymentStatusText = document.getElementById('paymentStatusText');
 const currentMonthLabel = document.getElementById('currentMonthLabel');
 const errorMessage = document.getElementById('errorMessage');
 const errorText = document.getElementById('errorText');
+const clearAttendanceBtn = document.getElementById('clearAttendanceBtn');
 
 window.addEventListener('DOMContentLoaded', () => {
     currentMonthLabel.textContent = new Intl.DateTimeFormat('ar-EG', { month: 'long' }).format(new Date());
     scanBtn.addEventListener('click', searchStudent);
     payAndAttendBtn.addEventListener('click', () => completeAction('payAndRecordAttendance'));
     attendanceOnlyBtn.addEventListener('click', () => completeAction('recordAttendance'));
+    clearAttendanceBtn.addEventListener('click', clearAttendance);
     studentIdInput.addEventListener('keydown', event => {
         if (event.key === 'Enter') searchStudent();
     });
@@ -39,6 +41,25 @@ function startScanner() {
         },
         () => {},
     ).catch(() => showError('اسمح للمتصفح باستخدام الكاميرا لعمل Scan'));
+}
+
+function clearAttendance() {
+    if (!window.confirm('هل تريد مسح كل سجلات الحضور من ورقة Attendance؟ لن تتأثر بيانات الطلاب أو حالات الدفع.')) return;
+    clearAttendanceBtn.disabled = true;
+    const params = new URLSearchParams({ action: 'clearAttendance' });
+    fetch(`${SCRIPT_URL}?${params}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'فشل مسح سجل الحضور');
+            studentInfo.classList.add('hidden');
+            studentIdInput.value = '';
+            showMessage('تم مسح سجل الحضور وبدء يوم جديد');
+        })
+        .catch(error => showError(error.message))
+        .finally(() => {
+            clearAttendanceBtn.disabled = false;
+            studentIdInput.focus();
+        });
 }
 
 function searchStudent() {
@@ -103,4 +124,9 @@ function showError(message) {
 
 function hideError() {
     errorMessage.classList.add('hidden');
+}
+
+function showMessage(message) {
+    errorText.textContent = message;
+    errorMessage.classList.remove('hidden');
 }
