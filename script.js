@@ -1,6 +1,10 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMKQ-N-w4BUqAWE4lNP6TrgUtTCbhatFkkEfdnYKs5ALBVpaWBaVYOK-AaI7jk-3LKSg/exec';
 let currentStudent = null;
 let actionInProgress = false;
+let searchInProgress = false;
+let lastScannedValue = '';
+let scanLocked = false;
+let scanner = null;
 
 const studentIdInput = document.getElementById('studentIdInput');
 const scanBtn = document.getElementById('scanBtn');
@@ -31,11 +35,13 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 function startScanner() {
-    const scanner = new Html5Qrcode('qrReader');
+    scanner = new Html5Qrcode('qrReader');
     scanner.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         decodedText => {
+            if (scanLocked || searchInProgress || decodedText.trim() === lastScannedValue) return;
+            lastScannedValue = decodedText.trim();
             studentIdInput.value = decodedText.trim();
             searchStudent();
         },
@@ -65,13 +71,34 @@ function clearAttendance() {
 function searchStudent() {
     const value = studentIdInput.value.trim();
     if (!value) return showError('امسح QR Code أو أدخل رقم الطالب');
-    fetch(`${SCRIPT_URL}?action=getStudent&studentId=${encodeURIComponent(value)}`)
-        .then(response => response.json())
+    if (searchInProgress) return;
+    searchInProgress = true;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    fetch(`${SCRIPT_URL}?action=getStudent&studentId=${encodeURIComponent(value)}`, { signal: controller.signal })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
         .then(data => {
-            if (data.success) displayStudent(data.student);
+            if (data.success) {
+                scanLocked = true;
+                displayStudent(data.student);
+            }
             else showError(data.message || 'الطالب غير موجود');
         })
-        .catch(() => showError('حدث خطأ في الاتصال بملف Google Sheets'));
+        .catch(error => showError(error.name === 'AbortError'
+            ? 'انتهت مهلة الاتصال بملف Google Sheets'
+            : 'حدث خطأ في الاتصال بملف Google Sheets'))
+        .finally(() => {
+            clearTimeout(timeout);
+            searchInProgress = false;
+            if (!studentInfo.classList.contains('hidden')) scanner?.pause(true);
+            if (studentInfo.classList.contains('hidden')) {
+                scanLocked = false;
+                lastScannedValue = '';
+            }
+        });
 }
 
 function displayStudent(student) {
@@ -107,10 +134,19 @@ function completeAction(action) {
         .then(data => {
             if (!data.success) throw new Error(data.message || 'فشل تسجيل العملية');
             studentInfo.classList.add('hidden');
+            currentStudent = null;
+            scanLocked = false;
+            lastScannedValue = '';
+            scanner?.resume();
             studentIdInput.value = '';
             studentIdInput.focus();
         })
-        .catch(error => showError(error.message))
+        .catch(error => {
+            scanLocked = false;
+            lastScannedValue = '';
+            scanner?.resume();
+            showError(error.message);
+        })
         .finally(() => {
             actionInProgress = false;
             if (currentStudent && !studentInfo.classList.contains('hidden')) displayStudent(currentStudent);
