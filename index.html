@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل حضور الطلاب</title>
     <link rel="stylesheet" href="style.css">
+    <!-- مكتبة HTML5 QR Code -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
@@ -15,7 +18,7 @@
 
         <main class="main-content">
             <div class="daily-actions">
-                <button id="clearAttendanceBtn" class="btn btn-danger"> بدء يوم جديد </button>
+                <button id="clearAttendanceBtn" class="btn btn-danger">بدء يوم جديد</button>
             </div>
             <section class="scanner-section">
                 <div id="qrReader"></div>
@@ -26,6 +29,7 @@
                 
                 <div id="studentInfo" class="student-info hidden">
                     <div class="student-card">
+                        <div class="student-avatar" id="studentAvatar">👤</div>
                         <div class="student-details">
                             <h2 id="studentName">اسم الطالب</h2>
                             <p id="studentId">رقم الطالب: -</p>
@@ -49,11 +53,10 @@
                 </div>
 
                 <div id="errorMessage" class="error-message hidden">
-                    <span class="error-icon"></span>
+                    <span class="error-icon">⚠️</span>
                     <span id="errorText"></span>
                 </div>
             </section>
-
         </main>
 
         <footer class="footer">
@@ -61,6 +64,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=4"></script>
+    <script src="script.js"></script>
 </body>
 </html>
