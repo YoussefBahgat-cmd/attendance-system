@@ -27,7 +27,15 @@ const errorMessage = document.getElementById('errorMessage');
 const errorText = document.getElementById('errorText');
 const clearAttendanceBtn = document.getElementById('clearAttendanceBtn');
 
-// 3. تشغيل الصوت (تنبيه عند المسح)
+// 3. دالة جلب بداية الشهر الحالي ديناميكياً (YYYY-MM-01)
+function getCurrentPaymentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}-01`;
+}
+
+// 4. تشغيل صوت التنبيه فور القراءة
 function playBeepSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -35,20 +43,20 @@ function playBeepSound() {
         const gainNode = audioCtx.createGain();
 
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // تردد الصوت 800Hz
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
 
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
         oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15); // مدة الصوت 150 ملي ثانية
+        oscillator.stop(audioCtx.currentTime + 0.15);
     } catch (e) {
         console.log('صوت التنبيه غير مدعوم أو يتطلب تفاعل مع الصفحة أولاً');
     }
 }
 
-// 4. تهيئة الأحداث عند التحميل
+// 5. تهيئة الأحداث عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
     currentMonthLabel.textContent = new Intl.DateTimeFormat('ar-EG', { month: 'long' }).format(new Date());
 
@@ -64,7 +72,7 @@ window.addEventListener('DOMContentLoaded', () => {
     startScanner();
 });
 
-// 5. تشغيل ماسح الـ QR Code وإغلاقه فور القراءة
+// 6. تشغيل ماسح الـ QR Code وإيقافه فور القراءة
 function startScanner() {
     scanner = new Html5Qrcode('qrReader');
     scanner.start(
@@ -73,10 +81,8 @@ function startScanner() {
         decodedText => {
             if (scanLocked || searchInProgress) return;
 
-            scanLocked = true; // إغلاق المسح لمنع التكرار
-            playBeepSound(); // تشغيل صوت التنبيه
-
-            // إيقاف الـ Scanner المؤقت فور القراءة
+            scanLocked = true;
+            playBeepSound();
             scanner.pause(true);
 
             studentIdInput.value = decodedText.trim();
@@ -86,7 +92,7 @@ function startScanner() {
     ).catch(() => showError('اسمح للمتصفح باستخدام الكاميرا لعمل Scan'));
 }
 
-// 6. البحث عن الطالب في Supabase
+// 7. البحث عن الطالب في Supabase
 async function searchStudent() {
     const value = studentIdInput.value.trim();
     if (!value) {
@@ -112,11 +118,13 @@ async function searchStudent() {
             return;
         }
 
+        const currentMonth = getCurrentPaymentMonth();
+
         const { data: payment } = await db
             .from('payments')
             .select('*')
             .eq('student_id', student.id)
-            .eq('payment_month', '2026-09-01')
+            .eq('payment_month', currentMonth)
             .maybeSingle();
 
         const paymentStatus = payment ? payment.status : 'غير مدفوع';
@@ -138,12 +146,12 @@ async function searchStudent() {
     }
 }
 
-// 7. عرض بيانات الطالب
+// 8. عرض بيانات الطالب وتحديث الواجهة
 function displayStudent(student) {
     currentStudent = student;
     studentName.textContent = student.studentName;
-    studentId.textContent = `رقم الطالب: ${student.studentId}`;
-    studentGroup.textContent = `المجموعة: ${student.group}`;
+    studentId.textContent = student.studentId;
+    studentGroup.textContent = student.group;
     studentAvatar.textContent = student.studentName.charAt(0);
 
     const paid = String(student.status || '').trim() === 'مدفوع';
@@ -159,7 +167,7 @@ function displayStudent(student) {
     hideError();
 }
 
-// 8. تنفيذ عمليات الدفع والحضور
+// 9. تنفيذ عمليات الدفع والحضور
 async function completeAction(action) {
     if (!currentStudent || actionInProgress) return;
 
@@ -169,13 +177,14 @@ async function completeAction(action) {
 
     try {
         let paymentStatus = currentStudent.status;
+        const currentMonth = getCurrentPaymentMonth();
 
         if (action === 'payAndRecordAttendance') {
             const { error: payError } = await db
                 .from('payments')
                 .upsert({
                     student_id: currentStudent.id,
-                    payment_month: '2026-09-01',
+                    payment_month: currentMonth,
                     status: 'مدفوع',
                     paid_at: new Date().toISOString()
                 }, { onConflict: 'student_id, payment_month' });
@@ -211,7 +220,7 @@ async function completeAction(action) {
     }
 }
 
-// 9. مسح الحضور لبدء يوم جديد
+// 10. مسح الحضور لبدء يوم جديد
 async function clearAttendance() {
     if (!window.confirm('هل تريد مسح كل سجلات الحضور؟ لن تتأثر بيانات الطلاب أو حالات الدفع.')) return;
 
@@ -234,7 +243,7 @@ async function clearAttendance() {
     }
 }
 
-// 10. إعادة استئناف الـ Scan وإخفاء كارت الطالب
+// 11. إعادة إتاحة الكاميرا وإعادة تعيين الواجهة
 function resetCardUI() {
     studentInfo.classList.add('hidden');
     currentStudent = null;
@@ -242,7 +251,6 @@ function resetCardUI() {
     studentIdInput.value = '';
     studentIdInput.focus();
 
-    // إعادة تشغيل الكاميرا لاستقبال الطالب التالي
     try {
         scanner?.resume();
     } catch (e) {}
