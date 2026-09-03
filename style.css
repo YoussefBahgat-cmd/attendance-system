@@ -3,7 +3,6 @@
     --primary-dark: #1d4ed8;
     --success-color: #16a34a;
     --error-color: #dc2626;
-    --warning-color: #ea580c;
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
     --text-primary: #1e293b;
@@ -85,41 +84,104 @@ section {
     border-color: var(--primary-color);
 }
 
+/* ===== تصميم كارت الطالب المطور ===== */
 .student-card {
-    background: var(--bg-color);
+    background: #ffffff;
+    border-radius: 16px;
     padding: 20px;
-    border-radius: var(--radius-sm);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.card-header {
     display: flex;
-    gap: 15px;
     align-items: center;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px dashed #f1f5f9;
     margin-bottom: 15px;
 }
 
 .student-avatar {
-    width: 60px;
-    height: 60px;
-    background: var(--primary-color);
-    color: white;
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: bold;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.student-details {
+.student-main-details {
     flex: 1;
+    text-align: right;
+}
+
+.student-main-details h2 {
+    font-size: 1.3rem;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.info-item {
+    background: #f8fafc;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #edf2f7;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+    background: #f1f5f9;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.payment-value {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 4px;
 }
 
 .payment-value.paid {
-    color: var(--success-color);
-    font-weight: bold;
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
 }
 
 .payment-value.unpaid {
-    color: var(--error-color);
-    font-weight: bold;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
 }
 
 .action-buttons {
