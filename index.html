@@ -13,12 +13,12 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>تسجيل حضور الطلاب</h1>
+            <h1>تسجيل مستر حسين</h1>
         </header>
 
         <main class="main-content">
             <div class="daily-actions">
-                <button id="clearAttendanceBtn" class="btn btn-danger">بدء يوم جديد</button>
+                <button id="clearAttendanceBtn" class="btn btn-danger"> بدء يوم جديد  </button>
             </div>
             <section class="scanner-section">
                 <div id="qrReader"></div>
@@ -29,23 +29,32 @@
                 
                 <div id="studentInfo" class="student-info hidden">
                     <div class="student-card">
-                        <div class="student-avatar" id="studentAvatar">👤</div>
-                        <div class="student-details">
-                            <h2 id="studentName">اسم الطالب</h2>
-                            <p id="studentId">رقم الطالب: -</p>
-                            <p id="studentGroup">المجموعة: -</p>
-                            <div class="payment-info" id="paymentInfo">
-                                <div class="payment-status" id="paymentStatus">
-                                    <span class="payment-label">حالة الدفع لشهر <span id="currentMonthLabel"></span>:</span>
-                                    <span class="payment-value" id="paymentStatusText">-</span>
+                        <div class="card-header">
+                            <div class="student-main-details">
+                                <h2 id="studentName">اسم الطالب</h2>
+                                <div class="status-badge" id="statusBadge">
+                                    <span class="status-dot"></span>
+                                    <span class="status-text">جاهز للتسجيل</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="status-badge" id="statusBadge">
-                            <span class="status-dot"></span>
-                            <span class="status-text">جاهز للتسجيل</span>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">🪪 رقم الطالب</span>
+                                <span class="info-value" id="studentId">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">📚 المجموعة</span>
+                                <span class="info-value" id="studentGroup">-</span>
+                            </div>
+                            <div class="info-item full-width">
+                                <span class="info-label">🗓️ حالة الدفع لشهر <span id="currentMonthLabel"></span></span>
+                                <span class="payment-value" id="paymentStatusText">-</span>
+                            </div>
                         </div>
                     </div>
+
                     <div class="action-buttons attendance-actions">
                         <button id="payAndAttendBtn" class="btn btn-success btn-large">💳 دفع وتسجيل حضور</button>
                         <button id="attendanceOnlyBtn" class="btn btn-secondary btn-large">✅ تسجيل حضور فقط</button>
@@ -53,7 +62,7 @@
                 </div>
 
                 <div id="errorMessage" class="error-message hidden">
-                    <span class="error-icon">⚠️</span>
+                    <span class="error-icon"></span>
                     <span id="errorText"></span>
                 </div>
             </section>
