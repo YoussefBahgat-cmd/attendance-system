@@ -1,6 +1,7 @@
 // 1. بيانات الاتصال بقاعدة بيانات Supabase
 const SUPABASE_URL = "https://nfegjcgffqhoanhunrha.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_P4BWclFrOfZFbM8UegQWwQ_cJc4Z6da";
+// ⚠️ استبدل النص أدناه بمفتاح anon public الصحيح الذي نسخته من Supabase
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mZWdqY2dmZnFob2FuaHVucmhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjY3MjcsImV4cCI6MjEwNDA0MjcyN30.58u3oDaF7L3kvAHy1XEguH0Sx8P0jp72eviWHkmN47M";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -17,7 +18,6 @@ const studentInfo = document.getElementById('studentInfo');
 const studentName = document.getElementById('studentName');
 const studentId = document.getElementById('studentId');
 const studentGroup = document.getElementById('studentGroup');
-const studentAvatar = document.getElementById('studentAvatar');
 const statusBadge = document.getElementById('statusBadge');
 const payAndAttendBtn = document.getElementById('payAndAttendBtn');
 const attendanceOnlyBtn = document.getElementById('attendanceOnlyBtn');
@@ -58,7 +58,9 @@ function playBeepSound() {
 
 // 5. تهيئة الأحداث عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
-    currentMonthLabel.textContent = new Intl.DateTimeFormat('ar-EG', { month: 'long' }).format(new Date());
+    if (currentMonthLabel) {
+        currentMonthLabel.textContent = new Intl.DateTimeFormat('ar-EG', { month: 'long' }).format(new Date());
+    }
 
     scanBtn.addEventListener('click', searchStudent);
     payAndAttendBtn.addEventListener('click', () => completeAction('payAndRecordAttendance'));
@@ -112,7 +114,12 @@ async function searchStudent() {
             .eq('student_id', value)
             .maybeSingle();
 
-        if (studentError || !student) {
+        if (studentError) {
+            console.error('Database Error:', studentError);
+            throw studentError;
+        }
+
+        if (!student) {
             showError('الطالب غير موجود في قاعدة البيانات!');
             resetCardUI();
             return;
@@ -139,7 +146,7 @@ async function searchStudent() {
 
     } catch (err) {
         console.error(err);
-        showError('حدث خطأ أثناء الاتصال بقاعدة البيانات.');
+        showError('حدث خطأ أثناء الاتصال بقاعدة البيانات. قم بمراجعة المفتاح والصلاحيات.');
         resetCardUI();
     } finally {
         searchInProgress = false;
@@ -152,7 +159,6 @@ function displayStudent(student) {
     studentName.textContent = student.studentName;
     studentId.textContent = student.studentId;
     studentGroup.textContent = student.group;
-    studentAvatar.textContent = student.studentName.charAt(0);
 
     const paid = String(student.status || '').trim() === 'مدفوع';
     paymentStatusText.textContent = paid ? 'مدفوع ✅' : 'غير مدفوع ❌';
@@ -189,7 +195,7 @@ async function completeAction(action) {
                     paid_at: new Date().toISOString()
                 }, { onConflict: 'student_id, payment_month' });
 
-            if (payError) throw new Error('فشل تحديث حالة الدفع');
+            if (payError) throw payError;
             paymentStatus = 'مدفوع';
         }
 
@@ -204,7 +210,7 @@ async function completeAction(action) {
             if (attendError.code === '23505') {
                 throw new Error('تنبيه: تم تسجيل حضور هذا الطالب اليوم بالفعل!');
             } else {
-                throw new Error('فشل تسجيل الحضور');
+                throw attendError;
             }
         }
 
@@ -232,7 +238,7 @@ async function clearAttendance() {
             .delete()
             .neq('id', '00000000-0000-0000-0000-000000000000');
 
-        if (error) throw new Error('فشل مسح سجل الحضور');
+        if (error) throw error;
 
         resetCardUI();
         showSuccess('تم مسح سجل الحضور وبدء يوم جديد بنجاح');
