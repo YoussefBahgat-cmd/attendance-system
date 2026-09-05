@@ -1,11 +1,8 @@
-// 1. بيانات الاتصال بقاعدة بيانات Supabase
-const SUPABASE_URL = "https://nfegjcgffqhoanhunrha.supabase.co";
-// ⚠️ استبدل النص أدناه بمفتاح anon public الصحيح الذي نسخته من Supabase
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mZWdqY2dmZnFob2FuaHVucmhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0NjY3MjcsImV4cCI6MjEwNDA0MjcyN30.58u3oDaF7L3kvAHy1XEguH0Sx8P0jp72eviWHkmN47M";
+const SUPABASE_URL = "https://jflavxpfytmtkjkbielw.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_0QAerSSi6B9jOUufph_IOg_bcjQTEpJ";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2. العناصر والمتغيرات العامة
 let actionInProgress = false;
 let searchInProgress = false;
 let scanLocked = false;
@@ -27,7 +24,6 @@ const errorMessage = document.getElementById('errorMessage');
 const errorText = document.getElementById('errorText');
 const clearAttendanceBtn = document.getElementById('clearAttendanceBtn');
 
-// 3. دالة جلب بداية الشهر الحالي ديناميكياً (YYYY-MM-01)
 function getCurrentPaymentMonth() {
     const now = new Date();
     const year = now.getFullYear();
@@ -35,7 +31,6 @@ function getCurrentPaymentMonth() {
     return `${year}-${month}-01`;
 }
 
-// 4. تشغيل صوت التنبيه فور القراءة
 function playBeepSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -51,12 +46,9 @@ function playBeepSound() {
 
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch (e) {
-        console.log('صوت التنبيه غير مدعوم أو يتطلب تفاعل مع الصفحة أولاً');
-    }
+    } catch (e) {}
 }
 
-// 5. تهيئة الأحداث عند تحميل الصفحة
 window.addEventListener('DOMContentLoaded', () => {
     if (currentMonthLabel) {
         currentMonthLabel.textContent = new Intl.DateTimeFormat('ar-EG', { month: 'long' }).format(new Date());
@@ -74,7 +66,6 @@ window.addEventListener('DOMContentLoaded', () => {
     startScanner();
 });
 
-// 6. تشغيل ماسح الـ QR Code وإيقافه فور القراءة
 function startScanner() {
     scanner = new Html5Qrcode('qrReader');
     scanner.start(
@@ -94,7 +85,6 @@ function startScanner() {
     ).catch(() => showError('اسمح للمتصفح باستخدام الكاميرا لعمل Scan'));
 }
 
-// 7. البحث عن الطالب في Supabase
 async function searchStudent() {
     const value = studentIdInput.value.trim();
     if (!value) {
@@ -114,12 +104,7 @@ async function searchStudent() {
             .eq('student_id', value)
             .maybeSingle();
 
-        if (studentError) {
-            console.error('Database Error:', studentError);
-            throw studentError;
-        }
-
-        if (!student) {
+        if (studentError || !student) {
             showError('الطالب غير موجود في قاعدة البيانات!');
             resetCardUI();
             return;
@@ -145,15 +130,13 @@ async function searchStudent() {
         });
 
     } catch (err) {
-        console.error(err);
-        showError('حدث خطأ أثناء الاتصال بقاعدة البيانات. قم بمراجعة المفتاح والصلاحيات.');
+        showError('حدث خطأ أثناء الاتصال بقاعدة البيانات.');
         resetCardUI();
     } finally {
         searchInProgress = false;
     }
 }
 
-// 8. عرض بيانات الطالب وتحديث الواجهة
 function displayStudent(student) {
     currentStudent = student;
     studentName.textContent = student.studentName;
@@ -173,7 +156,6 @@ function displayStudent(student) {
     hideError();
 }
 
-// 9. تنفيذ عمليات الدفع والحضور
 async function completeAction(action) {
     if (!currentStudent || actionInProgress) return;
 
@@ -226,7 +208,6 @@ async function completeAction(action) {
     }
 }
 
-// 10. مسح الحضور لبدء يوم جديد
 async function clearAttendance() {
     if (!window.confirm('هل تريد مسح كل سجلات الحضور؟ لن تتأثر بيانات الطلاب أو حالات الدفع.')) return;
 
@@ -249,7 +230,6 @@ async function clearAttendance() {
     }
 }
 
-// 11. إعادة إتاحة الكاميرا وإعادة تعيين الواجهة
 function resetCardUI() {
     studentInfo.classList.add('hidden');
     currentStudent = null;

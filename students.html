@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلاب - سنتر مستر حسين</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>👨‍🎓 إدارة بيانات الطلاب</h1>
+            <nav class="nav-menu">
+                <a href="dashboard.html">الرئيسية</a>
+                <a href="index.html">تسجيل الحضور</a>
+                <a href="students.html" class="active">إدارة الطلاب</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <!-- نموذج إضافة طالب جديد -->
+            <section class="form-section">
+                <h2>➕ إضافة طالب جديد</h2>
+                <form id="addStudentForm" class="student-form">
+                    <label>رقم الطالب (تلقائي):</label>
+                    <input type="text" id="newStudentId" readonly style="background-color: #e2e8f0; font-weight: bold;">
+                    
+                    <label>اسم الطالب:</label>
+                    <input type="text" id="newStudentName" placeholder="أدخل اسم الطالب بالكامل" required>
+                    
+                    <label>المجموعة:</label>
+                    <select id="newStudentGroup" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-bottom: 15px; font-size: 1rem;">
+                        <option value="">-- اختر المجموعة --</option>
+                    </select>
+                    
+                    <button type="submit" class="btn btn-primary">حفظ الطالب</button>
+                </form>
+            </section>
+
+            <!-- جدول قائمة الطلاب والبحث -->
+            <section class="table-section" style="margin-top: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <h2>قائمة الطلاب المسجلين</h2>
+                    <button id="exportQrExcelBtn" class="btn btn-success">📊 تصدير للأكسيل (لطباعة QR)</button>
+                </div>
+
+                <!-- حقل البحث الفوري بالاسم أو الكود -->
+                <div style="margin-bottom: 15px;">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="🔍 ابحث باسم الطالب أو الكود مباشرة..." 
+                        style="width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.95rem; box-sizing: border-box;"
+                    >
+                </div>
+                
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطالب</th>
+                            <th>الاسم</th>
+                            <th>المجموعة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="students.js"></script>
+</body>
+</html>

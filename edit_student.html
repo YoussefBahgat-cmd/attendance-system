@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل بيانات طالب - سنتر مستر حسين</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>✏️ تعديل بيانات الطلاب</h1>
+            <nav class="nav-menu">
+                <a href="dashboard.html">الرئيسية</a>
+                <a href="index.html">تسجيل الحضور</a>
+                <a href="students.html">إدارة الطلاب</a>
+                <a href="edit_student.html" class="active">تعديل طالب</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <!-- قسم البحث بالأدوات المختلفة -->
+            <section class="form-section">
+                <h2>🔍 البحث عن الطالب لتعديله</h2>
+                
+                <!-- كاميرا قراءة QR Code -->
+                <div id="qrReader" style="width: 100%; max-width: 320px; margin: 0 auto 15px auto;"></div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="searchInput" placeholder="أدخل كود الطالب (مثال: STUD-001) أو الاسم..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #ccc;">
+                    <button id="searchBtn" class="btn btn-primary">بحث</button>
+                </div>
+            </section>
+
+            <!-- نموذج تعديل البيانات (يكون مخفياً حتى يتم إيجاد الطالب) -->
+            <section id="editSection" class="form-section hidden" style="margin-top: 20px;">
+                <h2>📝 تعديل البيانات الحالية</h2>
+                <form id="editForm">
+                    <input type="hidden" id="editRowId">
+                    
+                    <label>كود الطالب (غير قابل للتعديل):</label>
+                    <input type="text" id="editStudentCode" readonly style="background-color: #e2e8f0; font-weight: bold;">
+
+                    <label>اسم الطالب:</label>
+                    <input type="text" id="editStudentName" required>
+
+                    <label>المجموعة:</label>
+                    <select id="editStudentGroup" required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 5px; margin-bottom: 15px;">
+                        <option value="">-- اختر المجموعة --</option>
+                        <option value="س ث 1:30">س ث 1:30</option>
+                        <option value="س ث 5">س ث 5</option>
+                        <option value="ح ع 12">ح ع 12</option>
+                        <option value="ح ع 3">ح ع 3</option>
+                        <option value="ث خ 1:30">ث خ 1:30</option>
+                        <option value="ث خ 3">ث خ 3</option>
+                        <option value="ث خ 5">ث خ 5</option>
+                        <option value="ث خ 6:30">ث خ 6:30</option>
+                    </select>
+
+                    <button type="submit" class="btn btn-primary" style="background-color: #16a34a; width: 100%;">حفظ التعديلات ✅</button>
+                </form>
+            </section>
+        </main>
+    </div>
+    <script src="edit_student.js"></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - سنتر مستر حسين</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📊 لوحة التحكم الرئيسية</h1>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="active">الرئيسية</a>
+                <a href="index.html">تسجيل الحضور</a>
+                <a href="students.html">إدارة الطلاب</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>👥 إجمالي الطلاب</h3>
+                    <p id="totalStudentsCount">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>✅ حضور اليوم</h3>
+                    <p id="todayAttendanceCount">-</p>
+                </div>
+                <div class="stat-card">
+                    <h3>💳 المدفوعات للشهر الحالي</h3>
+                    <p id="paidStudentsCount">-</p>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <button id="exportAttendanceBtn" class="btn btn-success btn-large">📊 تصدير شيت الحضور اليومي (Excel)</button>
+                <button id="exportPaymentsBtn" class="btn btn-primary btn-large">💰 تصدير تقرير المدفوعات للشهر (Excel)</button>
+            </div>
+        </main>
+    </div>
+    <script src="dashboard.js"></script>
+</body>
+</html>

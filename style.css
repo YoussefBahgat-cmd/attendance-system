@@ -29,7 +29,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 850px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -42,6 +42,27 @@ header {
     border-radius: var(--radius);
     margin-bottom: 20px;
     box-shadow: var(--shadow-lg);
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.15);
+    font-weight: 600;
+}
+
+.nav-menu a.active, .nav-menu a:hover {
+    background: white;
+    color: var(--primary-color);
 }
 
 .daily-actions {
@@ -79,12 +100,6 @@ section {
     font-size: 1rem;
 }
 
-.input-group input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-}
-
-/* ===== تصميم كارت الطالب المطور ===== */
 .student-card {
     background: #ffffff;
     border-radius: 16px;
@@ -92,40 +107,6 @@ section {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     border: 1px solid #e2e8f0;
     margin-bottom: 20px;
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding-bottom: 15px;
-    border-bottom: 2px dashed #f1f5f9;
-    margin-bottom: 15px;
-}
-
-.student-avatar {
-    width: 55px;
-    height: 55px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-.student-main-details {
-    flex: 1;
-    text-align: right;
-}
-
-.student-main-details h2 {
-    font-size: 1.3rem;
-    color: #0f172a;
-    margin-bottom: 4px;
 }
 
 .info-grid {
@@ -150,18 +131,6 @@ section {
     background: #f1f5f9;
 }
 
-.info-label {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.info-value {
-    font-size: 1rem;
-    color: #1e293b;
-    font-weight: 700;
-}
-
 .payment-value {
     display: inline-block;
     padding: 8px 16px;
@@ -169,25 +138,12 @@ section {
     font-size: 1rem;
     font-weight: 700;
     text-align: center;
-    margin-top: 4px;
 }
 
-.payment-value.paid {
-    background: #dcfce7;
-    color: #15803d;
-    border: 1px solid #bbf7d0;
-}
+.payment-value.paid { background: #dcfce7; color: #15803d; }
+.payment-value.unpaid { background: #fee2e2; color: #b91c1c; }
 
-.payment-value.unpaid {
-    background: #fee2e2;
-    color: #b91c1c;
-    border: 1px solid #fecaca;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 10px;
-}
+.action-buttons { display: flex; gap: 10px; }
 
 .btn {
     padding: 12px 20px;
@@ -200,12 +156,63 @@ section {
 }
 
 .btn-primary { background: var(--primary-color); color: white; }
-.btn-success { background: var(--success-color); color: white; flex: 1; }
-.btn-secondary { background: var(--border-color); color: var(--text-primary); flex: 1; }
+.btn-success { background: var(--success-color); color: white; }
+.btn-secondary { background: var(--border-color); color: var(--text-primary); }
 .btn-danger { background: var(--error-color); color: white; }
+.btn-large { flex: 1; }
 
-.btn:hover { transform: translateY(-1px); }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+.stat-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.dashboard-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.student-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.student-form input {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.students-table th, .students-table td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: right;
+}
+
+.students-table th { background: #f1f5f9; }
 
 .error-message {
     padding: 12px;
@@ -216,15 +223,5 @@ section {
     font-weight: bold;
 }
 
-.error-message.success-style {
-    background: #dcfce7;
-    color: #166534;
-}
-
+.error-message.success-style { background: #dcfce7; color: #166534; }
 .hidden { display: none; }
-
-footer {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-secondary);
-}
