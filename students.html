@@ -43,7 +43,10 @@
             <section class="table-section" style="margin-top: 30px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <h2>قائمة الطلاب المسجلين</h2>
-                    <button id="exportQrExcelBtn" class="btn btn-success">📊 تصدير للأكسيل (لطباعة QR)</button>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="exportNewQrBtn" class="btn btn-success" style="background-color: #10b981;">🖨️ تصدير الجدد لطباعة QR (اليوم)</button>
+                        <button id="exportAllStudentsBtn" class="btn btn-primary" style="background-color: #0284c7;">📊 تصدير كل الطلاب + حالة الدفع</button>
+                    </div>
                 </div>
 
                 <!-- حقل البحث الفوري بالاسم أو الكود -->
