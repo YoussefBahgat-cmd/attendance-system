@@ -47,7 +47,7 @@ function populateGroupDropdown() {
     });
 }
 
-// 2. جلب قائمة الطلاب من Supabase
+// 2. جلب قائمة الطلاب من Supabase بدون عرضهم تلقائياً
 async function loadStudents() {
     try {
         const { data: students, error } = await db
@@ -58,15 +58,17 @@ async function loadStudents() {
         if (error) throw error;
 
         allStudentsList = students || [];
-        renderStudentsTable(allStudentsList);
+        
+        // توليد الكود التالي وإظهار رسالة التوجيه في الجدول بدلاً من عرض الأسماء
         generateNextStudentId(allStudentsList);
+        filterStudents();
 
     } catch (err) {
         alert('حدث خطأ أثناء جلب بيانات الطلاب: ' + err.message);
     }
 }
 
-// 3. توليد الكود التلقائي (STUD-557...)
+// 3. توليد الكود التلقائي (STUD-001...)
 function generateNextStudentId(students) {
     let maxNumber = 0;
 
@@ -84,15 +86,23 @@ function generateNextStudentId(students) {
     if (newStudentIdInput) newStudentIdInput.value = `STUD-${paddedNumber}`;
 }
 
-// 4. عرض البيانات داخل الجدول وإضافة أزرار التعديل والحذف
-function renderStudentsTable(students) {
+// 4. عرض النتائج داخل الجدول
+function renderStudentsTable(students, isSearching) {
     studentsTableBody.innerHTML = '';
 
-    if (students.length === 0) {
-        studentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">لا يوجد طلاب مطابقون للبحث</td></tr>';
+    // إذا لم يكتب المستخدم شيئاً في خانة البحث
+    if (!isSearching) {
+        studentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #64748b; padding: 15px;">🔍 اكتب اسم الطالب أو الكود في خانة البحث للظهور</td></tr>';
         return;
     }
 
+    // إذا كانت هناك عملية بحث ولكن لا توجد نتائج مطابقة
+    if (students.length === 0) {
+        studentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ef4444; padding: 15px;">لا يوجد طالب مطابق لهذا البحث</td></tr>';
+        return;
+    }
+
+    // عرض الطلاب المطابقين فقط
     students.forEach(student => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -108,9 +118,15 @@ function renderStudentsTable(students) {
     });
 }
 
-// 5. الفلترة المباشرة بالاسم أو الكود
+// 5. الفلترة والبحث المباشر
 function filterStudents() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
+    const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+    // إذا كانت خانة البحث فارغة، لا تعرض شيئاً
+    if (!searchTerm) {
+        renderStudentsTable([], false);
+        return;
+    }
 
     const filtered = allStudentsList.filter(student => {
         const nameMatch = student.student_name && student.student_name.toLowerCase().includes(searchTerm);
@@ -119,7 +135,7 @@ function filterStudents() {
         return nameMatch || idMatch;
     });
 
-    renderStudentsTable(filtered);
+    renderStudentsTable(filtered, true);
 }
 
 // 6. إضافة طالب جديد
@@ -149,6 +165,9 @@ async function handleAddStudent(e) {
         newStudentNameInput.value = '';
         newStudentGroupInput.value = '';
         alert('تمت إضافة الطالب بنجاح ✅');
+        
+        // عند الإضافة يمسح البحث لإبقاء الجدول نظيفاً
+        if (searchInput) searchInput.value = '';
         loadStudents();
 
     } catch (err) {
@@ -156,17 +175,16 @@ async function handleAddStudent(e) {
     }
 }
 
-// 7. نافذة حوار لتعديل بيانات الطالب (تغيير الاسم أو المجموعة)
+// 7. تعديل بيانات طالب
 async function openEditModal(id, code, currentName, currentGroup) {
     const newName = prompt(`تعديل اسم الطالب (${code}):`, currentName);
-    if (newName === null) return; // تم إلغاء العملية
+    if (newName === null) return;
 
     if (!newName.trim()) {
         alert("لا يمكن ترك الاسم فارغاً.");
         return;
     }
 
-    // بناء خيارات المجموعة للاختيار منها
     let groupOptionsText = AVAILABLE_GROUPS.map((g, index) => `${index + 1}. ${g}`).join('\n');
     let groupChoice = prompt(`اختر رقم المجموعة الجديدة للطالب:\n\n${groupOptionsText}\n\n(المجموعة الحالية: ${currentGroup})`);
 
@@ -217,7 +235,7 @@ async function deleteStudent(id, name) {
     }
 }
 
-// 9. تصدير لملف Excel
+// 9. تصدير لملف Excel (يصدر كل البيانات المخزنة بغض النظر عن البحث)
 function exportStudentsForQR() {
     if (allStudentsList.length === 0) {
         alert('لا توجد بيانات طلاب للتصدير!');
