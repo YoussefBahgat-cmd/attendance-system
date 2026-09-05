@@ -8,12 +8,14 @@ const newStudentIdInput = document.getElementById('newStudentId');
 const newStudentNameInput = document.getElementById('newStudentName');
 const newStudentGroupInput = document.getElementById('newStudentGroup');
 const studentsTableBody = document.getElementById('studentsTableBody');
-const exportQrExcelBtn = document.getElementById('exportQrExcelBtn');
 const searchInput = document.getElementById('searchInput');
+
+const exportNewQrBtn = document.getElementById('exportNewQrBtn');
+const exportAllStudentsBtn = document.getElementById('exportAllStudentsBtn');
 
 let allStudentsList = [];
 
-// المجموعات المتاحة ثابتة لمنع خطأ Data Inconsistency
+// المجموعات المتاحة
 const AVAILABLE_GROUPS = [
     "س ث 1:30",
     "س ث 5",
@@ -25,16 +27,24 @@ const AVAILABLE_GROUPS = [
     "ث خ 6:30"
 ];
 
+function getCurrentPaymentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}-01`;
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     loadStudents();
     populateGroupDropdown();
     
-    if (exportQrExcelBtn) exportQrExcelBtn.addEventListener('click', exportStudentsForQR);
+    if (exportNewQrBtn) exportNewQrBtn.addEventListener('click', exportNewStudentsForQR);
+    if (exportAllStudentsBtn) exportAllStudentsBtn.addEventListener('click', exportAllStudentsWithPayment);
     if (addStudentForm) addStudentForm.addEventListener('submit', handleAddStudent);
     if (searchInput) searchInput.addEventListener('input', filterStudents);
 });
 
-// 1. ملء القائمة المنسدلة الخاصة بإضافة طالب جديد تلقائياً
+// ملء القائمة المنسدلة
 function populateGroupDropdown() {
     if (!newStudentGroupInput || newStudentGroupInput.tagName !== 'SELECT') return;
 
@@ -47,7 +57,7 @@ function populateGroupDropdown() {
     });
 }
 
-// 2. جلب قائمة الطلاب من Supabase بدون عرضهم تلقائياً
+// جلب الطلاب من قاعدة البيانات
 async function loadStudents() {
     try {
         const { data: students, error } = await db
@@ -59,7 +69,6 @@ async function loadStudents() {
 
         allStudentsList = students || [];
         
-        // توليد الكود التالي وإظهار رسالة التوجيه في الجدول بدلاً من عرض الأسماء
         generateNextStudentId(allStudentsList);
         filterStudents();
 
@@ -68,7 +77,7 @@ async function loadStudents() {
     }
 }
 
-// 3. توليد الكود التلقائي (STUD-001...)
+// توليد رقم الطالب التالي
 function generateNextStudentId(students) {
     let maxNumber = 0;
 
@@ -86,23 +95,20 @@ function generateNextStudentId(students) {
     if (newStudentIdInput) newStudentIdInput.value = `STUD-${paddedNumber}`;
 }
 
-// 4. عرض النتائج داخل الجدول
+// عرض النتائج في الجدول عند البحث فقط
 function renderStudentsTable(students, isSearching) {
     studentsTableBody.innerHTML = '';
 
-    // إذا لم يكتب المستخدم شيئاً في خانة البحث
     if (!isSearching) {
         studentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #64748b; padding: 15px;">🔍 اكتب اسم الطالب أو الكود في خانة البحث للظهور</td></tr>';
         return;
     }
 
-    // إذا كانت هناك عملية بحث ولكن لا توجد نتائج مطابقة
     if (students.length === 0) {
         studentsTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: #ef4444; padding: 15px;">لا يوجد طالب مطابق لهذا البحث</td></tr>';
         return;
     }
 
-    // عرض الطلاب المطابقين فقط
     students.forEach(student => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -118,11 +124,10 @@ function renderStudentsTable(students, isSearching) {
     });
 }
 
-// 5. الفلترة والبحث المباشر
+// الفلترة الفورية
 function filterStudents() {
     const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-    // إذا كانت خانة البحث فارغة، لا تعرض شيئاً
     if (!searchTerm) {
         renderStudentsTable([], false);
         return;
@@ -138,7 +143,7 @@ function filterStudents() {
     renderStudentsTable(filtered, true);
 }
 
-// 6. إضافة طالب جديد
+// إضافة طالب جديد
 async function handleAddStudent(e) {
     e.preventDefault();
 
@@ -166,7 +171,6 @@ async function handleAddStudent(e) {
         newStudentGroupInput.value = '';
         alert('تمت إضافة الطالب بنجاح ✅');
         
-        // عند الإضافة يمسح البحث لإبقاء الجدول نظيفاً
         if (searchInput) searchInput.value = '';
         loadStudents();
 
@@ -175,7 +179,7 @@ async function handleAddStudent(e) {
     }
 }
 
-// 7. تعديل بيانات طالب
+// تعديل بيانات طالب
 async function openEditModal(id, code, currentName, currentGroup) {
     const newName = prompt(`تعديل اسم الطالب (${code}):`, currentName);
     if (newName === null) return;
@@ -217,7 +221,7 @@ async function openEditModal(id, code, currentName, currentGroup) {
     }
 }
 
-// 8. حذف طالب
+// حذف طالب
 async function deleteStudent(id, name) {
     if (!confirm(`هل أنت تأكد من حذف الطالب (${name})؟`)) return;
 
@@ -235,22 +239,86 @@ async function deleteStudent(id, name) {
     }
 }
 
-// 9. تصدير لملف Excel (يصدر كل البيانات المخزنة بغض النظر عن البحث)
-function exportStudentsForQR() {
-    if (allStudentsList.length === 0) {
-        alert('لا توجد بيانات طلاب للتصدير!');
-        return;
+// 1. تصدير للطلاب الجدد المسجلين اليوم فقط (لطباعة الـ QR Code)
+async function exportNewStudentsForQR() {
+    try {
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const { data: newStudents, error } = await db
+            .from('students')
+            .select('*')
+            .gte('created_at', todayStart.toISOString())
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (!newStudents || newStudents.length === 0) {
+            alert('لا يوجد طلاب جدد تم إضافتهم اليوم لتصديرهم!');
+            return;
+        }
+
+        const excelData = newStudents.map(student => ({
+            "كود الطالب (QR Code)": student.student_id,
+            "اسم الطالب": student.student_name,
+            "المجموعة": student.student_group,
+            "تاريخ الإضافة": new Date(student.created_at).toLocaleDateString('ar-EG')
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "الطلاب الجدد");
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(workbook, `الطلاب_الجدد_QR_${todayStr}.xlsx`);
+
+    } catch (err) {
+        alert('حدث خطأ أثناء تصدير الطلاب الجدد: ' + err.message);
     }
+}
 
-    const excelData = allStudentsList.map(student => ({
-        "كود الطالب (QR Code)": student.student_id,
-        "اسم الطالب": student.student_name,
-        "المجموعة": student.student_group
-    }));
+// 2. تصدير الشيت الشامل لكل الطلاب + حالة دفع الشهر الحالي
+async function exportAllStudentsWithPayment() {
+    try {
+        const currentMonth = getCurrentPaymentMonth();
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "الطلاب");
+        const { data: students, error: studentErr } = await db
+            .from('students')
+            .select('*')
+            .order('student_id', { ascending: true });
 
-    XLSX.writeFile(workbook, `قائمة_الطلاب_طباعة_QR.xlsx`);
+        if (studentErr) throw studentErr;
+
+        const { data: payments, error: payErr } = await db
+            .from('payments')
+            .select('*')
+            .eq('payment_month', currentMonth);
+
+        if (payErr) throw payErr;
+
+        const paidStudentIds = new Set(
+            (payments || [])
+                .filter(p => p.status === 'مدفوع')
+                .map(p => p.student_id)
+        );
+
+        const excelData = students.map(student => {
+            const isPaid = paidStudentIds.has(student.id);
+            return {
+                "كود الطالب": student.student_id,
+                "اسم الطالب": student.student_name,
+                "المجموعة": student.student_group,
+                "حالة الدفع لشهر الحالي": isPaid ? "مدفوع ✅" : "غير مدفوع ❌"
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "كل الطلاب");
+
+        XLSX.writeFile(workbook, `تقرير_كل_الطلاب_والمدفوعات_${currentMonth}.xlsx`);
+
+    } catch (err) {
+        alert('حدث خطأ أثناء تصدير تقرير الطلاب الشامل: ' + err.message);
+    }
 }
